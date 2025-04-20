@@ -297,7 +297,7 @@ Keep your response focused and evidence-based. Remove any points you cannot stro
 def main():
     parser = argparse.ArgumentParser(description="Summarize a PDF document using Gemini AI")
     parser.add_argument("pdf_path", help="/doc.pdf")
-    parser.add_argument("--api-key", help="AIzaSyB_W9t18sgLbGXoD_zeqPaLkF8oyPPO19g")
+    parser.add_argument("--api-key", help="Your API KEY")
     parser.add_argument("--length", choices=["short", "medium", "long"], 
                         default="medium", help="Summary length")
     parser.add_argument("--output", help="Output file path (if not provided, prints to console)")
