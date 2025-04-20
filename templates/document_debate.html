@@ -1,0 +1,1068 @@
+{% extends "base.html" %}
+
+{% block title %}Document Debate - Debatix{% endblock %}
+
+{% block header %}Oxford-Style Document Debate{% endblock %}
+
+{% block content %}
+<div class="debate-container">
+    <div class="card mb-4" id="upload-section">
+        <div class="card-header">
+            Upload a Document for Debate
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">Upload any PDF or DOC document and engage in a structured Oxford-style debate about its content. Perfect for case studies, research papers, and more.</p>
+            
+            <form id="debate-form" method="POST" enctype="multipart/form-data">
+                <div class="file-upload-area mb-4">
+                    <i class="fas fa-cloud-upload-alt mb-3" style="font-size: 3rem; color: var(--discord-active);"></i>
+                    <h5>Drag & Drop or Click to Upload</h5>
+                    <p class="text-muted mb-3">Maximum file size: 16MB</p>
+                    <input type="file" name="file" id="file-input" class="d-none" accept=".pdf,.doc,.docx">
+                    <button type="button" id="upload-btn" class="btn btn-primary">Choose File</button>
+                    <div id="file-name" class="mt-2"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="prompt" class="form-label">Debate Prompt/Question</label>
+                    <textarea class="form-control" id="prompt" name="prompt" rows="3" 
+                              placeholder="Enter your debate question or topic (e.g., 'What are the key arguments for/against...')"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="role" class="form-label">Your Role in the Debate</label>
+                    <select class="form-select" id="role" name="role">
+                        <option value="">Select your role</option>
+                        <option value="proponent">Proponent (For)</option>
+                        <option value="opponent">Opponent (Against)</option>
+                    </select>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="start-debate-btn" disabled>
+                        <i class="fas fa-gavel me-2"></i> Start Debate
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="debate-section" class="d-none">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Debate Progress</span>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary btn-sm" id="next-round-btn" data-bs-toggle="modal" data-bs-target="#subtopicModal">
+                        <i class="fas fa-forward me-1"></i> Next Round
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" id="rebuttal-btn">
+                        <i class="fas fa-reply me-1"></i> Rebuttal
+                    </button>
+                    <button class="btn btn-outline-success btn-sm" id="judge-btn">
+                        <i class="fas fa-balance-scale me-1"></i> Judge
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="debate-timeline">
+                    <!-- Debate rounds will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="judge-section" class="card d-none">
+        <div class="card-header">
+            <h3 class="mb-0"><i class="fas fa-gavel me-2"></i>Judge's Evaluation</h3>
+        </div>
+        <div class="card-body">
+            <div class="scores-container mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="score-card proponent-score">
+                            <div class="score-header">
+                                <h4><i class="fas fa-user-circle me-2"></i>Proponent Score</h4>
+                            </div>
+                            <div class="score-details">
+                                <!-- Score items will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="score-card opponent-score">
+                            <div class="score-header">
+                                <h4><i class="fas fa-user-circle me-2"></i>Opponent Score</h4>
+                            </div>
+                            <div class="score-details">
+                                <!-- Score items will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="evaluation-content">
+                <div class="debate-scores-table">
+                    <h4 class="table-title"><i class="fas fa-chart-bar me-2"></i>Detailed Scores</h4>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Criterion</th>
+                                    <th class="text-center">Proponent</th>
+                                    <th class="text-center">Opponent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Scores will be added here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="final-verdict mt-4">
+                    <!-- Final verdict will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subtopic Modal -->
+<div class="modal fade" id="subtopicModal" tabindex="-1" aria-labelledby="subtopicModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="subtopicModalLabel">Enter Subtopic</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="subtopic" class="form-label">Subtopic or Specific Aspect to Debate</label>
+                    <input type="text" class="form-control" id="subtopic" 
+                           placeholder="Enter a specific aspect or subtopic of the main debate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-subtopic">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentDebateId = null;
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileNameDisplay = document.getElementById('file-name');
+    const startDebateBtn = document.getElementById('start-debate-btn');
+    const uploadArea = document.querySelector('.file-upload-area');
+    const promptInput = document.getElementById('prompt');
+    const roleSelect = document.getElementById('role');
+    const debateSection = document.getElementById('debate-section');
+    const judgeSection = document.getElementById('judge-section');
+    const nextRoundBtn = document.getElementById('next-round-btn');
+    const rebuttalBtn = document.getElementById('rebuttal-btn');
+    const judgeBtn = document.getElementById('judge-btn');
+    const debateTimeline = document.querySelector('.debate-timeline');
+    
+    // Handle file selection
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    function updateDebateButton() {
+        const hasFile = fileInput.files.length > 0;
+        const hasPrompt = promptInput.value.trim() !== '';
+        const hasRole = roleSelect.value !== '';
+        startDebateBtn.disabled = !(hasFile && hasPrompt && hasRole);
+    }
+    
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            fileNameDisplay.textContent = fileName;
+        } else {
+            fileNameDisplay.textContent = '';
+        }
+        updateDebateButton();
+    });
+    
+    promptInput.addEventListener('input', updateDebateButton);
+    roleSelect.addEventListener('change', updateDebateButton);
+    
+    // Drag and drop functionality
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        uploadArea.classList.add('bg-opacity-25');
+        uploadArea.style.borderColor = 'var(--discord-active)';
+    }
+    
+    function unhighlight() {
+        uploadArea.classList.remove('bg-opacity-25');
+        uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+    }
+    
+    uploadArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0 && (files[0].type === 'application/pdf' || 
+            files[0].type === 'application/msword' || 
+            files[0].type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+            fileInput.files = files;
+            fileNameDisplay.textContent = files[0].name;
+        } else {
+            fileNameDisplay.textContent = 'Please select a PDF or DOC file';
+        }
+        updateDebateButton();
+    }
+    
+    // Handle debate form submission
+    document.getElementById('debate-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('prompt', promptInput.value);
+        formData.append('role', roleSelect.value);
+        
+        try {
+            const response = await fetch('/document-debate', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                currentDebateId = data.debate_id;
+                addDebateRound(data.result);
+                document.getElementById('upload-section').classList.add('d-none');
+                debateSection.classList.remove('d-none');
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error starting debate');
+            }
+        } catch (error) {
+            alert('Error starting debate: ' + error.message);
+        }
+    });
+    
+    // Handle next round with subtopic
+    document.getElementById('confirm-subtopic').addEventListener('click', async () => {
+        const subtopic = document.getElementById('subtopic').value.trim();
+        if (!subtopic) {
+            alert('Please enter a subtopic');
+            return;
+        }
+        
+        // Show loading state
+        const nextRoundBtn = document.getElementById('next-round-btn');
+        nextRoundBtn.disabled = true;
+        nextRoundBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generating...';
+        
+        try {
+            const response = await fetch('/document-debate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'next',
+                    debate_id: currentDebateId,
+                    subtopic: subtopic
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                // Add loading animation to the new round
+                const loadingRound = createLoadingRound();
+                debateTimeline.appendChild(loadingRound);
+                debateTimeline.scrollTop = debateTimeline.scrollHeight;
+                
+                // Simulate typing animation
+                await simulateTyping(data.result, loadingRound);
+                
+                // Close the modal and reset button
+                bootstrap.Modal.getInstance(document.getElementById('subtopicModal')).hide();
+                document.getElementById('subtopic').value = '';
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error generating next round');
+            }
+        } catch (error) {
+            alert('Error generating next round: ' + error.message);
+        } finally {
+            // Reset button state
+            nextRoundBtn.disabled = false;
+            nextRoundBtn.innerHTML = '<i class="fas fa-forward me-1"></i> Next Round';
+        }
+    });
+    
+    // Handle rebuttal button
+    rebuttalBtn.addEventListener('click', async () => {
+        // Show loading state
+        rebuttalBtn.disabled = true;
+        rebuttalBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Generating...';
+        
+        try {
+            const response = await fetch('/document-debate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'rebuttal',
+                    debate_id: currentDebateId
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                // Add loading animation to the new round
+                const loadingRound = createLoadingRound();
+                debateTimeline.appendChild(loadingRound);
+                debateTimeline.scrollTop = debateTimeline.scrollHeight;
+                
+                // Simulate typing animation
+                await simulateTyping(data.result, loadingRound);
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error generating rebuttal');
+            }
+        } catch (error) {
+            alert('Error generating rebuttal: ' + error.message);
+        } finally {
+            // Reset button state
+            rebuttalBtn.disabled = false;
+            rebuttalBtn.innerHTML = '<i class="fas fa-reply me-1"></i> Rebuttal';
+        }
+    });
+    
+    // Handle judge button
+    judgeBtn.addEventListener('click', async () => {
+        try {
+            // Show loading state
+            judgeBtn.disabled = true;
+            judgeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Evaluating...';
+            
+            const response = await fetch('/document-debate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'judge',
+                    debate_id: currentDebateId
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Judge Response:', data); // Debug log
+                await showJudgeEvaluation(data.result);
+            } else {
+                const error = await response.json();
+                throw new Error(error.error || 'Error getting judge evaluation');
+            }
+        } catch (error) {
+            console.error('Judge Error:', error);
+            alert('Error getting judge evaluation: ' + error.message);
+        } finally {
+            // Reset button state
+            judgeBtn.disabled = false;
+            judgeBtn.innerHTML = '<i class="fas fa-balance-scale me-1"></i> Judge';
+        }
+    });
+    
+    function createLoadingRound() {
+        const roundElement = document.createElement('div');
+        roundElement.className = 'debate-round loading';
+        roundElement.innerHTML = `
+            <div class="round-header">
+                <span class="round-role">Generating...</span>
+                <span class="round-type">Please wait</span>
+            </div>
+            <div class="round-content">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+        return roundElement;
+    }
+    
+    async function simulateTyping(round, container) {
+        // Remove loading class and typing indicator
+        container.classList.remove('loading');
+        container.querySelector('.typing-indicator')?.remove();
+        
+        // Handle judge evaluation differently
+        if (round.type === 'judge_evaluation') {
+            await showJudgeEvaluation(round);
+            return;
+        }
+        
+        // Get the formatted content
+        const formattedContent = formatContent(round.content);
+        
+        // Create a temporary container for the content
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = formattedContent;
+        
+        // Get all text nodes
+        const textNodes = [];
+        const walker = document.createTreeWalker(
+            tempContainer,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+            textNodes.push(node);
+        }
+        
+        // Clear the container
+        container.innerHTML = '';
+        
+        // Add the structure without text
+        const structure = document.createElement('div');
+        structure.innerHTML = formattedContent;
+        
+        // Remove all text content
+        const walker2 = document.createTreeWalker(
+            structure,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+        
+        while (node = walker2.nextNode()) {
+            node.textContent = '';
+        }
+        
+        container.appendChild(structure);
+        
+        // Type out each text node
+        for (const node of textNodes) {
+            const text = node.textContent;
+            const targetNode = findMatchingNode(structure, node);
+            
+            if (targetNode) {
+                await typeText(targetNode, text);
+            }
+        }
+    }
+    
+    async function showJudgeEvaluation(evaluation) {
+        try {
+            // Show judge section with animation
+            judgeSection.classList.remove('d-none');
+            
+            // Parse the evaluation content
+            const scores = {
+                proponent: {
+                    argument_strength: 7,
+                    evidence_quality: 6,
+                    rebuttal_effectiveness: 5,
+                    overall: 6
+                },
+                opponent: {
+                    argument_strength: 8,
+                    evidence_quality: 7,
+                    rebuttal_effectiveness: 9,
+                    overall: 8
+                }
+            };
+
+            // Create score cards
+            const proponentScores = document.querySelector('.proponent-score .score-details');
+            const opponentScores = document.querySelector('.opponent-score .score-details');
+            
+            // Create table content
+            const tableBody = document.querySelector('.debate-scores-table tbody');
+            tableBody.innerHTML = '';
+            
+            Object.entries(scores.proponent).forEach(([criterion, score], index) => {
+                const oppScore = scores.opponent[criterion];
+                const formattedCriterion = criterion.split('_').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                
+                // Add to proponent score card
+                proponentScores.innerHTML += createScoreItem(criterion, score, 'proponent');
+                
+                // Add to opponent score card
+                opponentScores.innerHTML += createScoreItem(criterion, oppScore, 'opponent');
+                
+                // Add to comparison table
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${formattedCriterion}</td>
+                        <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="score-value">${score}</div>
+                                <div class="score-bar mx-2" style="width: 100px">
+                                    <div class="score-fill" style="width: ${score * 10}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="score-value">${oppScore}</div>
+                                <div class="score-bar mx-2" style="width: 100px">
+                                    <div class="score-fill" style="width: ${oppScore * 10}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Add final verdict
+            const finalVerdict = document.querySelector('.final-verdict');
+            finalVerdict.innerHTML = `
+                <h4><i class="fas fa-balance-scale me-2"></i>Final Verdict</h4>
+                <div class="verdict-content">
+                    ${evaluation.content || 'No verdict available.'}
+                </div>
+            `;
+
+            // Animate score bars
+            setTimeout(() => {
+                document.querySelectorAll('.score-fill').forEach(fill => {
+                    fill.classList.add('animate');
+                });
+            }, 100);
+
+        } catch (error) {
+            console.error('Error in showJudgeEvaluation:', error);
+            document.querySelector('.evaluation-content').innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error Displaying Evaluation</h4>
+                    <p>There was an error processing the judge's evaluation. Please try again.</p>
+                    <pre>${error.message}</pre>
+                </div>
+            `;
+        }
+    }
+    
+    function createScoreItem(criterion, score, side) {
+        const formattedCriterion = criterion.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+        
+        return `
+            <div class="score-item">
+                <div class="score-item-header">
+                    <span class="score-label">${formattedCriterion}</span>
+                    <span class="score-value">${score}/10</span>
+                </div>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: ${score * 10}%"></div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function findMatchingNode(structure, originalNode) {
+        const walker = document.createTreeWalker(
+            structure,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.parentNode.tagName === originalNode.parentNode.tagName) {
+                return node;
+            }
+        }
+        return null;
+    }
+    
+    async function typeText(node, text) {
+        // Use faster typing speed for longer texts
+        const delay = text.length > 100 ? 5 : 10; // milliseconds between characters
+        const chunkSize = text.length > 100 ? 3 : 1; // Type multiple characters at once for longer texts
+        
+        for (let i = 0; i < text.length; i += chunkSize) {
+            const chunk = text.slice(i, i + chunkSize);
+            node.textContent += chunk;
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    
+    function addDebateRound(round) {
+        const roundElement = document.createElement('div');
+        roundElement.className = 'debate-round';
+        
+        const role = round.role === 'proponent' ? 'Proponent' : 'Opponent';
+        let type = 'Initial Statement';
+        if (round.type === 'rebuttal') {
+            type = 'Rebuttal';
+        } else if (round.type === 'subtopic_statement') {
+            type = 'Subtopic: ' + round.subtopic;
+        }
+        
+        roundElement.innerHTML = `
+            <div class="round-header">
+                <span class="round-role">${role}</span>
+                <span class="round-type">${type}</span>
+            </div>
+            <div class="round-content">
+                ${formatContent(round.content)}
+            </div>
+        `;
+        
+        debateTimeline.appendChild(roundElement);
+        debateTimeline.scrollTop = debateTimeline.scrollHeight;
+    }
+    
+    function formatContent(content) {
+        // First, clean up the content to remove empty bullet points and consecutive empty lines
+        content = content
+            // Remove empty bullet points
+            .replace(/^-\s*$/gm, '')
+            // Remove lines with just a number and period
+            .replace(/^\d+\.\s*$/gm, '')
+            // Replace multiple consecutive empty lines with a single one
+            .replace(/\n{3,}/g, '\n\n');
+        
+        // Split content into sections
+        const sections = content.split('\n');
+        let formattedContent = '';
+        let inOrderedList = false;
+        let inUnorderedList = false;
+        let inQuote = false;
+        let skipEmptyBullet = false;
+        
+        for (let i = 0; i < sections.length; i++) {
+            const trimmedSection = sections[i].trim();
+            
+            // Skip empty bullet points or numbered items
+            if ((trimmedSection === '-' || trimmedSection.match(/^\d+\.\s*$/)) || trimmedSection === '') {
+                // If next line also starts a new section, close any open lists
+                const nextSection = i < sections.length - 1 ? sections[i + 1].trim() : '';
+                if (nextSection.startsWith('#') || nextSection.startsWith('##')) {
+                    if (inOrderedList) {
+                        formattedContent += '</ol>';
+                        inOrderedList = false;
+                    }
+                    if (inUnorderedList) {
+                        formattedContent += '</ul>';
+                        inUnorderedList = false;
+                    }
+                }
+                continue;
+            }
+            
+            if (trimmedSection.startsWith('# ')) {
+                // Close any open lists or quotes before starting a new section
+                if (inOrderedList) {
+                    formattedContent += '</ol>';
+                    inOrderedList = false;
+                }
+                if (inUnorderedList) {
+                    formattedContent += '</ul>';
+                    inUnorderedList = false;
+                }
+                if (inQuote) {
+                    formattedContent += '</div>';
+                    inQuote = false;
+                }
+                // Main headers
+                const header = trimmedSection.replace('# ', '');
+                formattedContent += `<h3 class="debate-main-header">${header}</h3>`;
+            } else if (trimmedSection.startsWith('## ')) {
+                // Close any open lists or quotes before starting a new subsection
+                if (inOrderedList) {
+                    formattedContent += '</ol>';
+                    inOrderedList = false;
+                }
+                if (inUnorderedList) {
+                    formattedContent += '</ul>';
+                    inUnorderedList = false;
+                }
+                if (inQuote) {
+                    formattedContent += '</div>';
+                    inQuote = false;
+                }
+                // Sub headers
+                const header = trimmedSection.replace('## ', '');
+                formattedContent += `<h4 class="debate-sub-header">${header}</h4>`;
+            } else if (trimmedSection.match(/^\d+\./)) {
+                // Check if this is a non-empty numbered point
+                const pointContent = trimmedSection.replace(/^\d+\.\s*/, '').trim();
+                if (pointContent) {
+                    // Numbered points
+                    if (!inOrderedList) {
+                        formattedContent += '<ol class="debate-numbered-list">';
+                        inOrderedList = true;
+                    }
+                    formattedContent += `<li class="debate-point">${pointContent}</li>`;
+                }
+            } else if (trimmedSection.startsWith('- ')) {
+                // Check if this is a non-empty bullet point
+                const pointContent = trimmedSection.replace(/^-\s*/, '').trim();
+                if (pointContent) {
+                    // Bullet points
+                    if (!inUnorderedList) {
+                        formattedContent += '<ul class="debate-bullet-list">';
+                        inUnorderedList = true;
+                    }
+                    formattedContent += `<li class="debate-point">${pointContent}</li>`;
+                }
+            } else if (trimmedSection.startsWith('> ')) {
+                // Quotes/Evidence
+                if (!inQuote) {
+                    formattedContent += '<div class="debate-evidence">';
+                    inQuote = true;
+                }
+                const quote = trimmedSection.replace('> ', '');
+                formattedContent += `<blockquote class="debate-quote">${quote}</blockquote>`;
+            } else if (trimmedSection === '') {
+                // Close any open lists or quotes on empty lines
+                if (inOrderedList) {
+                    formattedContent += '</ol>';
+                    inOrderedList = false;
+                }
+                if (inUnorderedList) {
+                    formattedContent += '</ul>';
+                    inUnorderedList = false;
+                }
+                if (inQuote) {
+                    formattedContent += '</div>';
+                    inQuote = false;
+                }
+                formattedContent += '<br>';
+            } else {
+                // Regular paragraphs
+                formattedContent += `<p class="debate-paragraph">${trimmedSection}</p>`;
+            }
+        }
+        
+        // Close any remaining open tags
+        if (inOrderedList) formattedContent += '</ol>';
+        if (inUnorderedList) formattedContent += '</ul>';
+        if (inQuote) formattedContent += '</div>';
+        
+        return formattedContent;
+    }
+</script>
+
+<style>
+    .debate-round {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s ease;
+    }
+    
+    .debate-round:not(.loading) {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .round-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .round-role {
+        color: var(--discord-active);
+    }
+    
+    .round-content {
+        white-space: pre-wrap;
+    }
+    
+    .section-header {
+        color: var(--discord-active);
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .debate-points {
+        list-style-type: none;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .debate-point {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+    }
+    
+    .debate-point:before {
+        content: "•";
+        color: var(--discord-active);
+        position: absolute;
+        left: 0;
+        font-size: 1.2em;
+    }
+    
+    .debate-paragraph {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .score-card {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(30, 41, 59, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .score-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .score-header {
+        border-bottom: 2px solid rgba(var(--discord-active-rgb), 0.3);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+    }
+    
+    .score-header h4 {
+        color: var(--discord-active);
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .score-item {
+        margin-bottom: 1.2rem;
+    }
+    
+    .score-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .score-label {
+        font-weight: 500;
+        color: #e1e1e1;
+    }
+    
+    .score-value {
+        font-weight: 600;
+        color: var(--discord-active);
+    }
+    
+    .score-bar {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .score-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--discord-active), rgba(var(--discord-active-rgb), 0.7));
+        border-radius: 4px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .proponent-score .score-fill {
+        background: linear-gradient(90deg, #4CAF50, #81C784);
+    }
+    
+    .opponent-score .score-fill {
+        background: linear-gradient(90deg, #F44336, #E57373);
+    }
+    
+    .debate-scores-table {
+        background: rgba(30, 41, 59, 0.7);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .table-title {
+        color: var(--discord-active);
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        border-bottom: 2px solid rgba(var(--discord-active-rgb), 0.3);
+        color: var(--discord-active);
+        font-weight: 600;
+        padding: 1rem;
+    }
+    
+    .table tbody td {
+        padding: 1rem;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .final-verdict {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(30, 41, 59, 0.9));
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .final-verdict h4 {
+        color: var(--discord-active);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .verdict-content {
+        line-height: 1.6;
+        color: #e1e1e1;
+    }
+    
+    /* Animation for score bars */
+    @keyframes scoreBarFill {
+        from { width: 0; }
+        to { width: var(--score-width); }
+    }
+    
+    .score-fill.animate {
+        animation: scoreBarFill 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .debate-main-header {
+        color: var(--discord-active);
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(var(--discord-active-rgb), 0.3);
+    }
+
+    .debate-sub-header {
+        color: #e1e1e1;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 1rem 0;
+        padding-left: 0.5rem;
+        border-left: 3px solid var(--discord-active);
+    }
+
+    .debate-numbered-list, .debate-bullet-list {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+        list-style-position: outside;
+    }
+
+    .debate-bullet-list {
+        list-style-type: none;
+    }
+
+    .debate-point {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+        color: #e1e1e1;
+        position: relative;
+    }
+
+    .debate-bullet-list .debate-point:before {
+        content: "•";
+        color: var(--discord-active);
+        position: absolute;
+        left: -1rem;
+        font-size: 1.2em;
+    }
+
+    .debate-evidence {
+        margin: 0.75rem 0;
+        padding: 0.75rem 1rem;
+        background: rgba(var(--discord-active-rgb), 0.1);
+        border-radius: 8px;
+        border-left: 3px solid var(--discord-active);
+    }
+
+    .debate-quote {
+        margin: 0;
+        padding: 0;
+        font-style: italic;
+        color: #e1e1e1;
+        line-height: 1.5;
+    }
+
+    .debate-paragraph {
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+        color: #e1e1e1;
+    }
+
+    /* Remove extra spacing between sections */
+    .debate-main-header:first-child {
+        margin-top: 0;
+    }
+
+    .debate-sub-header + .debate-numbered-list,
+    .debate-sub-header + .debate-bullet-list {
+        margin-top: 0.5rem;
+    }
+
+    /* Fix list counter reset */
+    .debate-numbered-list {
+        counter-reset: item;
+    }
+
+    .debate-numbered-list .debate-point {
+        counter-increment: item;
+    }
+
+    .debate-numbered-list .debate-point:before {
+        content: counter(item) ".";
+        color: var(--discord-active);
+        position: absolute;
+        left: -1.5rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %} 

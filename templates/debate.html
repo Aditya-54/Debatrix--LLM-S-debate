@@ -1,0 +1,691 @@
+{% extends "base.html" %}
+
+{% block title %}Debate - Debatix{% endblock %}
+
+{% block header %}Debate Chat{% endblock %}
+
+{% block content %}
+<div class="debate-container">
+    <div class="debate-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h3 class="display-6 mb-2">Professional Debate Assistant</h3>
+                <p class="text-muted mb-0">Enter a topic and engage in a structured, evidence-based debate with proper citations</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <button class="btn btn-outline-secondary btn-sm" id="clear-chat">
+                    <i class="fas fa-trash-alt me-1"></i> Clear Debate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+            <div class="message-sys welcome-message">
+                <div class="welcome-icon">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <div class="welcome-content">
+                    <h4>Welcome to Professional Debate!</h4>
+                    <p>Enter a debate topic and engage in a structured debate with:</p>
+                    <ul class="feature-list">
+                        <li>Turn-based arguments with proper citations</li>
+                        <li>Evidence-based responses using web search</li>
+                        <li>Control over debate flow and timing</li>
+                        <li>Professional judgment when you're ready</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <form id="debate-form">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="topic-input" placeholder="Enter a debate topic..." autocomplete="off">
+                    <button type="submit" class="btn btn-primary" id="start-debate-btn">
+                        <i class="fas fa-play me-1"></i> Start Debate
+                    </button>
+                </div>
+            </form>
+            <div class="chat-suggestions">
+                <p class="text-muted mb-2">Popular debate topics:</p>
+                <div class="suggestion-tags">
+                    <span class="suggestion-tag" data-topic="universal basic income">Universal Basic Income</span>
+                    <span class="suggestion-tag" data-topic="social media regulation">Social Media Regulation</span>
+                    <span class="suggestion-tag" data-topic="renewable energy">Renewable Energy</span>
+                    <span class="suggestion-tag" data-topic="artificial intelligence ethics">AI Ethics</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="debate-controls d-none" id="debate-controls">
+            <div class="btn-group w-100">
+                <button class="btn btn-outline-primary" id="pro-argument-btn">
+                    <i class="fas fa-thumbs-up me-1"></i> Pro Argument
+                </button>
+                <button class="btn btn-outline-danger" id="con-argument-btn">
+                    <i class="fas fa-thumbs-down me-1"></i> Con Argument
+                </button>
+                <button class="btn btn-outline-success" id="judge-btn">
+                    <i class="fas fa-balance-scale me-1"></i> Final Judgment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chatMessages = document.getElementById('chat-messages');
+const debateForm = document.getElementById('debate-form');
+const topicInput = document.getElementById('topic-input');
+const startDebateBtn = document.getElementById('start-debate-btn');
+const clearBtn = document.getElementById('clear-chat');
+const suggestionTags = document.querySelectorAll('.suggestion-tag');
+const debateControls = document.getElementById('debate-controls');
+const proArgumentBtn = document.getElementById('pro-argument-btn');
+const conArgumentBtn = document.getElementById('con-argument-btn');
+const judgeBtn = document.getElementById('judge-btn');
+
+let currentTopic = '';
+let currentRound = 0;
+let debateStarted = false;
+
+// Add a system message to the chat
+function addSystemMessage(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message-sys';
+    messageDiv.innerHTML = `<i class="fas fa-info-circle me-2"></i> ${message}`;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+// Add a user message to the chat
+function addUserMessage(message) {
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message user-message';
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-header">
+                <span class="message-username">You</span>
+                <span class="message-time">${timestamp}</span>
+            </div>
+            <div class="message-text">${message}</div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+// Add a bot message to the chat
+function addBotMessage(type, content, citations = []) {
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot-message';
+    
+    let icon = 'robot';
+    let username = 'Debatix AI';
+    let avatarColor = '';
+    
+    if (type === 'pros') {
+        icon = 'thumbs-up';
+        username = 'Pro Arguments';
+        avatarColor = 'style="background-color: var(--discord-success);"';
+    } else if (type === 'cons') {
+        icon = 'thumbs-down';
+        username = 'Con Arguments';
+        avatarColor = 'style="background-color: var(--discord-danger);"';
+    } else if (type === 'judgment') {
+        icon = 'gavel';
+        username = 'Judgment';
+        avatarColor = 'style="background-color: var(--discord-active);"';
+    }
+    
+    let formattedContent = content;
+    if (citations && citations.length > 0) {
+        formattedContent += '<div class="citations">';
+        formattedContent += '<h6>References:</h6>';
+        formattedContent += '<ul>';
+        citations.forEach(citation => {
+            formattedContent += `<li><a href="${citation.url}" target="_blank">${citation.title}</a></li>`;
+        });
+        formattedContent += '</ul>';
+        formattedContent += '</div>';
+    }
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar" ${avatarColor}>
+            <i class="fas fa-${icon}"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-header">
+                <span class="message-username">${username}</span>
+                <span class="message-time">${timestamp}</span>
+            </div>
+            <div class="message-text">${formattedContent}</div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+// Add a loading message
+function addLoadingMessage(message = 'Generating response...') {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'message-sys loading-message';
+    loadingDiv.innerHTML = `<div class="loading"></div> ${message}`;
+    chatMessages.appendChild(loadingDiv);
+    scrollToBottom();
+    return loadingDiv;
+}
+
+// Remove the loading message
+function removeLoadingMessage() {
+    const loadingMessage = document.querySelector('.loading-message');
+    if (loadingMessage) {
+        loadingMessage.remove();
+    }
+}
+
+// Scroll to the bottom of the chat
+function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Disable/enable input during processing
+function setInputState(isDisabled) {
+    topicInput.disabled = isDisabled;
+    startDebateBtn.disabled = isDisabled;
+    proArgumentBtn.disabled = isDisabled;
+    conArgumentBtn.disabled = isDisabled;
+    judgeBtn.disabled = isDisabled;
+}
+
+// Start the debate
+debateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const topic = topicInput.value.trim();
+    if (!topic) return;
+    
+    currentTopic = topic;
+    currentRound = 0;
+    debateStarted = true;
+    
+    // Disable input during processing
+    setInputState(true);
+    
+    // Add user message
+    addUserMessage(topic);
+    
+    // Clear input
+    topicInput.value = '';
+    
+    // Show debate controls
+    debateControls.classList.remove('d-none');
+    
+    // Add loading message
+    const loadingMessage = addLoadingMessage('Preparing debate structure...');
+    
+    try {
+        // Send request to server to initialize debate
+        const response = await fetch('/debate/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ topic }),
+        });
+        
+        if (!response.ok) {
+            throw new Error('Server error');
+        }
+        
+        const data = await response.json();
+        
+        // Remove loading message
+        removeLoadingMessage();
+        
+        // Add initial message
+        addSystemMessage(data.message);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        removeLoadingMessage();
+        addSystemMessage('Sorry, there was an error starting the debate. Please try again.');
+    } finally {
+        // Re-enable input
+        setInputState(false);
+    }
+});
+
+// Handle pro argument button
+proArgumentBtn.addEventListener('click', async () => {
+    if (!debateStarted) return;
+    
+    setInputState(true);
+    const loadingMessage = addLoadingMessage('Generating pro arguments with citations...');
+    
+    try {
+        const response = await fetch('/debate/pro', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                topic: currentTopic,
+                round: currentRound
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error('Server error');
+        }
+        
+        const data = await response.json();
+        removeLoadingMessage();
+        addBotMessage('pros', data.argument, data.citations);
+        currentRound++;
+        
+    } catch (error) {
+        console.error('Error:', error);
+        removeLoadingMessage();
+        addSystemMessage('Error generating pro arguments. Please try again.');
+    } finally {
+        setInputState(false);
+    }
+});
+
+// Handle con argument button
+conArgumentBtn.addEventListener('click', async () => {
+    if (!debateStarted) return;
+    
+    setInputState(true);
+    const loadingMessage = addLoadingMessage('Generating con arguments with citations...');
+    
+    try {
+        const response = await fetch('/debate/con', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                topic: currentTopic,
+                round: currentRound
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error('Server error');
+        }
+        
+        const data = await response.json();
+        removeLoadingMessage();
+        addBotMessage('cons', data.argument, data.citations);
+        currentRound++;
+        
+    } catch (error) {
+        console.error('Error:', error);
+        removeLoadingMessage();
+        addSystemMessage('Error generating con arguments. Please try again.');
+    } finally {
+        setInputState(false);
+    }
+});
+
+// Handle judge button
+judgeBtn.addEventListener('click', async () => {
+    if (!debateStarted) return;
+    
+    setInputState(true);
+    const loadingMessage = addLoadingMessage('Analyzing debate and preparing judgment...');
+    
+    try {
+        const response = await fetch('/debate/judge', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                topic: currentTopic,
+                rounds: currentRound
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error('Server error');
+        }
+        
+        const data = await response.json();
+        removeLoadingMessage();
+        addBotMessage('judgment', data.judgment);
+        debateStarted = false;
+        
+    } catch (error) {
+        console.error('Error:', error);
+        removeLoadingMessage();
+        addSystemMessage('Error generating judgment. Please try again.');
+    } finally {
+        setInputState(false);
+    }
+});
+
+// Clear chat functionality
+clearBtn.addEventListener('click', () => {
+    // Keep only the first welcome message
+    while (chatMessages.children.length > 1) {
+        chatMessages.removeChild(chatMessages.lastChild);
+    }
+    debateControls.classList.add('d-none');
+    debateStarted = false;
+    currentRound = 0;
+    currentTopic = '';
+});
+
+// Topic suggestions
+suggestionTags.forEach(tag => {
+    tag.addEventListener('click', () => {
+        const topic = tag.getAttribute('data-topic');
+        topicInput.value = topic;
+    });
+});
+
+// Focus the input field on page load
+window.addEventListener('load', () => {
+    topicInput.focus();
+});
+</script>
+
+<style>
+.debate-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.debate-header {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--discord-light-bg), var(--discord-bg));
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+}
+
+.welcome-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 25px;
+    background: linear-gradient(135deg, var(--discord-light-bg), var(--discord-bg));
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+
+.welcome-icon {
+    font-size: 2.5rem;
+    color: var(--discord-active);
+    background: rgba(88, 101, 242, 0.1);
+    padding: 15px;
+    border-radius: 50%;
+}
+
+.welcome-content h4 {
+    margin-bottom: 15px;
+    color: var(--discord-text);
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-list li {
+    margin-bottom: 8px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.feature-list li:before {
+    content: "•";
+    color: var(--discord-active);
+    position: absolute;
+    left: 0;
+}
+
+.chat-container {
+    background: var(--discord-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.chat-messages {
+    height: 60vh;
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--discord-dark-bg);
+}
+
+.message {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    animation: fade-in 0.3s ease;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--discord-light-bg);
+    color: var(--discord-text);
+    font-size: 1.2rem;
+}
+
+.message-content {
+    flex: 1;
+    background: var(--discord-light-bg);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.message-username {
+    font-weight: 600;
+    color: var(--discord-text);
+}
+
+.message-time {
+    font-size: 0.8rem;
+    color: var(--discord-text-muted);
+}
+
+.message-text {
+    color: var(--discord-text);
+    line-height: 1.6;
+}
+
+.citations {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.citations h6 {
+    color: var(--discord-text-muted);
+    margin-bottom: 10px;
+}
+
+.citations ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.citations li {
+    margin-bottom: 8px;
+}
+
+.citations a {
+    color: var(--discord-link);
+    text-decoration: none;
+}
+
+.citations a:hover {
+    text-decoration: underline;
+}
+
+.user-message .message-avatar {
+    background: var(--discord-active);
+}
+
+.bot-message .message-avatar {
+    background: var(--discord-success);
+}
+
+.message-sys {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 15px;
+    color: var(--discord-text-muted);
+}
+
+.chat-input {
+    padding: 20px;
+    background: var(--discord-light-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.input-group {
+    background: var(--discord-dark-bg);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.form-control {
+    background: transparent;
+    border: none;
+    color: var(--discord-text);
+    padding: 12px 15px;
+}
+
+.form-control:focus {
+    background: transparent;
+    color: var(--discord-text);
+    box-shadow: none;
+}
+
+.btn {
+    padding: 12px 20px;
+}
+
+.debate-controls {
+    padding: 15px 20px;
+    background: var(--discord-light-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-group .btn {
+    flex: 1;
+}
+
+.suggestion-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.suggestion-tag {
+    background: rgba(88, 101, 242, 0.1);
+    border: 1px solid rgba(88, 101, 242, 0.3);
+    padding: 8px 15px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.suggestion-tag:hover {
+    background: rgba(88, 101, 242, 0.2);
+    border-color: rgba(88, 101, 242, 0.5);
+    transform: translateY(-2px);
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--discord-active);
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .debate-container {
+        padding: 10px;
+    }
+    
+    .debate-header {
+        padding: 15px;
+    }
+    
+    .welcome-message {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .welcome-icon {
+        margin-bottom: 15px;
+    }
+    
+    .suggestion-tags {
+        justify-content: center;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %} 

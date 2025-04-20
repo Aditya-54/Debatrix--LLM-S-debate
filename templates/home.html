@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Debatrix{% endblock %}
+
+{% block header %}Welcome to Debatrix{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <div class="hero-section text-center mb-5">
+        <h1 class="display-4 mb-4">AI-Powered Debate System</h1>
+        <p class="lead mb-4">Engage in intelligent debates, analyze documents, and improve your argumentation skills with our advanced AI system.</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('debate') }}" class="btn btn-primary btn-lg me-3">Start Debate</a>
+            <a href="{{ url_for('document_debate') }}" class="btn btn-outline-secondary btn-lg">Document Debate</a>
+        </div>
+    </div>
+
+    <div class="features-section">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="fas fa-comments feature-icon"></i>
+                    <h3>AI Debates</h3>
+                    <p>Engage in intelligent debates with our AI system on any topic of your choice.</p>
+                    <a href="{{ url_for('debate') }}" class="feature-link">Try it now <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="fas fa-file-alt feature-icon"></i>
+                    <h3>Document Analysis</h3>
+                    <p>Upload documents and engage in structured debates about their content.</p>
+                    <a href="{{ url_for('document_debate') }}" class="feature-link">Try it now <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <h3>Performance Tracking</h3>
+                    <p>Get detailed analysis and feedback on your debating skills.</p>
+                    <a href="{{ url_for('about') }}" class="feature-link">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        text-align: center;
+        padding: 60px 20px;
+        margin-bottom: 40px;
+        background-color: rgba(0, 0, 0, 0.15);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(88, 101, 242, 0.2) 0%, rgba(88, 101, 242, 0) 70%);
+        z-index: 0;
+    }
+    
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        left: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(88, 101, 242, 0.1) 0%, rgba(88, 101, 242, 0) 70%);
+        z-index: 0;
+    }
+    
+    .hero-badge {
+        display: inline-block;
+        background-color: rgba(88, 101, 242, 0.2);
+        color: var(--discord-active);
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(88, 101, 242, 0.3);
+    }
+    
+    .highlight {
+        color: var(--discord-active);
+        position: relative;
+    }
+    
+    .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: var(--discord-active);
+        border-radius: 2px;
+    }
+    
+    .hero-buttons {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    
+    .feature-link {
+        display: inline-block;
+        margin-top: 15px;
+        color: var(--discord-active);
+        font-weight: 500;
+        transition: transform 0.2s ease;
+    }
+    
+    .feature-link:hover {
+        transform: translateX(5px);
+    }
+    
+    .feature-card {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .how-it-works-step {
+        position: relative;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: var(--border-radius);
+        height: 100%;
+    }
+    
+    .step-number {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 30px;
+        background-color: var(--discord-active);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+    }
+</style>
+{% endblock %} 

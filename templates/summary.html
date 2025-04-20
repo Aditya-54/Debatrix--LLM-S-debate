@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}PDF Summary - Debatix{% endblock %}
+
+{% block header %}PDF Summarizer{% endblock %}
+
+{% block content %}
+<div class="summary-container">
+    <div class="card">
+        <div class="card-header">
+            Upload a PDF for Summarization
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">Upload any PDF document and our AI will generate a clear, concise summary. Perfect for research papers, articles, reports, and more.</p>
+            
+            <form method="POST" enctype="multipart/form-data">
+                <div class="file-upload-area mb-4">
+                    <i class="fas fa-cloud-upload-alt mb-3" style="font-size: 3rem; color: var(--discord-active);"></i>
+                    <h5>Drag & Drop or Click to Upload</h5>
+                    <p class="text-muted mb-3">Maximum file size: 16MB</p>
+                    <input type="file" name="file" id="file-input" class="d-none" accept=".pdf">
+                    <button type="button" id="upload-btn" class="btn btn-primary">Choose File</button>
+                    <div id="file-name" class="mt-2"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="length" class="form-label">Summary Length</label>
+                    <select class="form-select" id="length" name="length">
+                        <option value="short">Short (2-3 paragraphs)</option>
+                        <option value="medium" selected>Medium (4-6 paragraphs)</option>
+                        <option value="long">Long (7-10 paragraphs)</option>
+                    </select>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" id="summarize-btn" disabled>
+                        <i class="fas fa-magic me-2"></i> Summarize
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if summary %}
+    <div class="card mt-4">
+        <div class="card-header">
+            Generated Summary
+        </div>
+        <div class="card-body">
+            <div class="summary-result">
+                {{ summary }}
+            </div>
+            <div class="text-end mt-3">
+                <button class="btn btn-outline-primary btn-sm" id="copy-btn">
+                    <i class="fas fa-copy me-1"></i> Copy to Clipboard
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileNameDisplay = document.getElementById('file-name');
+    const summarizeBtn = document.getElementById('summarize-btn');
+    const uploadArea = document.querySelector('.file-upload-area');
+    const copyBtn = document.getElementById('copy-btn');
+    
+    // Handle file selection
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            fileNameDisplay.textContent = fileName;
+            summarizeBtn.disabled = false;
+        } else {
+            fileNameDisplay.textContent = '';
+            summarizeBtn.disabled = true;
+        }
+    });
+    
+    // Drag and drop functionality
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        uploadArea.classList.add('bg-opacity-25');
+        uploadArea.style.borderColor = 'var(--discord-active)';
+    }
+    
+    function unhighlight() {
+        uploadArea.classList.remove('bg-opacity-25');
+        uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+    }
+    
+    uploadArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0 && files[0].type === 'application/pdf') {
+            fileInput.files = files;
+            fileNameDisplay.textContent = files[0].name;
+            summarizeBtn.disabled = false;
+        } else {
+            fileNameDisplay.textContent = 'Please select a PDF file';
+            summarizeBtn.disabled = true;
+        }
+    }
+    
+    // Copy to clipboard functionality
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            const summaryText = document.querySelector('.summary-result').textContent;
+            navigator.clipboard.writeText(summaryText).then(() => {
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+    }
+</script>
+{% endblock %} 

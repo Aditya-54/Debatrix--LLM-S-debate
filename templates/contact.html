@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Debatix{% endblock %}
+
+{% block header %}Contact Us{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Get in Touch</h2>
+    <p class="text-muted">We're here to help with any questions or feedback you might have</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="contact-section">
+            <h3><i class="fas fa-paper-plane me-2"></i>Contact Information</h3>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <h5>Email</h5>
+                        <a href="mailto:contact@debatix.ai">contact@debatix.ai</a>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <i class="fab fa-discord"></i>
+                    <div>
+                        <h5>Discord</h5>
+                        <a href="https://discord.gg/debatix" target="_blank">discord.gg/debatix</a>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <i class="fas fa-headset"></i>
+                    <div>
+                        <h5>Support</h5>
+                        <a href="mailto:support@debatix.ai">support@debatix.ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h4>Response Time</h4>
+                <p class="text-muted">We typically respond to all inquiries within 24 hours during business days.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-7">
+        <div class="contact-section">
+            <h3><i class="fas fa-edit me-2"></i>Send a Message</h3>
+            
+            <form id="contact-form">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Your Name</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Subject</label>
+                    <select class="form-select" id="subject">
+                        <option value="general">General Inquiry</option>
+                        <option value="support">Technical Support</option>
+                        <option value="feedback">Feedback</option>
+                        <option value="partnership">Partnership Opportunity</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea class="form-control" id="message" rows="5" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="contact-section mt-4">
+    <h3><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h3>
+    
+    <div class="faq-container">
+        <div class="faq-item">
+            <div class="faq-question">
+                How does Debatix work?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                Debatix uses advanced AI models like llama3 for pros , deepseek-r1 for cons and Google's Gemini model to analyze arguements on both sides of a debate. Simply enter your topic, and our AI will provide pros, cons, and a neutral judgment.
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                Is Debatix free to use?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                Yes, Debatix is currently free to use. We may introduce premium features in the future, but our core debate functionality will always remain accessible at no cost.
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                What can I use Debatix for?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                Debatix is useful for students preparing for debates or essays, researchers exploring different perspectives on a topic, educators teaching critical thinking, and anyone who wants to better understand multiple sides of complex issues.
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                How accurate are the AI-generated debates?
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                Debatix uses state-of-the-art AI models to generate well-reasoned arguments, but it's always important to verify critical information. Our system aims to provide balanced perspectives that reflect common arguments on both sides of a topic.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const contactForm = document.getElementById('contact-form');
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    
+    // Form submission handler
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // In a real application, you would send the form data to a server
+        // For this demo, we'll just show a success message
+        
+        const formElements = contactForm.elements;
+        const formData = {
+            name: formElements.name.value,
+            email: formElements.email.value,
+            subject: formElements.subject.value,
+            message: formElements.message.value
+        };
+        
+        console.log('Form submitted:', formData);
+        
+        // Show success message
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+        alert.innerHTML = `
+            <strong>Message sent!</strong> Thank you for contacting us. We'll respond shortly.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        contactForm.appendChild(alert);
+        contactForm.reset();
+        
+        // Remove alert after 5 seconds
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    });
+    
+    // FAQ accordion functionality
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', () => {
+            const faqItem = question.parentElement;
+            faqItem.classList.toggle('active');
+            
+            // Toggle the chevron icon
+            const icon = question.querySelector('i');
+            if (faqItem.classList.contains('active')) {
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            } else {
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            }
+        });
+    });
+</script>
+{% endblock %} 
